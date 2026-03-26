@@ -1,18 +1,22 @@
 
 
-## Problem
+## Issues
 
-The blank screen is likely caused by the same `render2 is not a function` error from before. While the `bun.lock` was updated to reference `react-leaflet@4.2.1`, the Vite dependency cache (`.vite/deps/`) may still contain the old v5 code, or the lockfile edit didn't trigger a proper reinstall.
+1. **Map overlaps header on scroll** — The Leaflet map container creates its own stacking context with high z-index, overlapping the sticky header (`z-50`). Need to ensure the map stays below the header.
 
-## Plan
+2. **Layout too small at 100% zoom** — Fixed heights (`h-[500px]`/`h-[580px]`) and `max-w-7xl` constrain the layout, requiring 125% zoom. Need to use viewport-relative sizing and a wider container.
 
-1. **Move the leaflet CSS import** — The `@import` at line 1 of `index.css` may conflict with Tailwind's `@tailwind` directives. Change it to a `<link>` tag in `index.html` instead, which is more reliable.
+## Changes
 
-2. **Ensure clean dependency resolution** — Delete and regenerate `bun.lock` so that the sandbox properly installs `react-leaflet@4.2.1` and `@react-leaflet/core@2.1.0`. This forces Vite to rebuild its dependency cache.
+### `src/components/DashboardHeader.tsx`
+- Bump z-index from `z-50` to `z-[1000]` to guarantee it sits above Leaflet's internal z-indices (which go up to ~600+)
 
-### Files to change
+### `src/index.css`
+- Add `.leaflet-container { z-index: 1; }` to keep the map in a low stacking layer
+- Add `position: relative` to the leaflet container rule
 
-- **`index.html`** — Add `<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />` in `<head>`
-- **`src/index.css`** — Remove line 1 (`@import "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"`)
-- **`bun.lock`** — Delete and let it regenerate to force a clean install
+### `src/pages/Index.tsx`
+- Remove `max-w-7xl` constraint — use full-width with more padding instead (e.g., `px-6 lg:px-10`)
+- Change map height from fixed `h-[500px] lg:h-[580px]` to viewport-relative `h-[60vh] lg:h-[75vh]` so it scales with screen size at 100% zoom
+- Adjust info panel max-height similarly
 
