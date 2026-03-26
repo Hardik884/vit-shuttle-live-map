@@ -17,10 +17,10 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <DashboardHeader liveBusCount={MOCK_BUSES.length} notificationCount={2} />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-4">
+      <main className="w-full px-4 sm:px-6 lg:px-10 py-4 space-y-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Map */}
-          <div className="lg:col-span-2 h-[500px] lg:h-[580px]">
+          <div className="lg:col-span-2 h-[60vh] lg:h-[75vh]">
             <ShuttleMap
               onSelectBus={handleSelectBus}
               selectedBusId={selectedBus?.id ?? null}
@@ -28,7 +28,7 @@ const Index = () => {
           </div>
 
           {/* Info Panel */}
-          <div className="lg:col-span-1 overflow-y-auto max-h-[580px]">
+          <div className="lg:col-span-1 overflow-y-auto max-h-[60vh] lg:max-h-[75vh]">
             <BusInfoPanel bus={selectedBus} />
           </div>
         </div>

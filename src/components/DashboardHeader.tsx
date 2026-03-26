@@ -7,7 +7,7 @@ interface DashboardHeaderProps {
 
 const DashboardHeader = ({ liveBusCount, notificationCount }: DashboardHeaderProps) => {
   return (
-    <header className="sticky top-0 z-50 bg-primary text-primary-foreground">
+    <header className="sticky top-0 z-[1000] bg-primary text-primary-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary-foreground/10 border border-primary-foreground/20 flex items-center justify-center">
