@@ -1,16 +1,47 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import DashboardHeader from "@/components/DashboardHeader";
+import ShuttleMap from "@/components/ShuttleMap";
+import BusInfoPanel from "@/components/BusInfoPanel";
+import ActiveBusList from "@/components/ActiveBusList";
+import { MOCK_BUSES } from "@/components/ShuttleMap";
+import type { Bus } from "@/components/ShuttleMap";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [selectedBus, setSelectedBus] = useState<Bus | null>(MOCK_BUSES[0]);
+
+  const handleSelectBus = (bus: Bus) => {
+    setSelectedBus(bus);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-background">
+      <DashboardHeader liveBusCount={MOCK_BUSES.length} notificationCount={2} />
+      
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Map */}
+          <div className="lg:col-span-2 h-[500px] lg:h-[580px]">
+            <ShuttleMap
+              onSelectBus={handleSelectBus}
+              selectedBusId={selectedBus?.id ?? null}
+            />
+          </div>
+
+          {/* Info Panel */}
+          <div className="lg:col-span-1 overflow-y-auto max-h-[580px]">
+            <BusInfoPanel bus={selectedBus} />
+          </div>
+        </div>
+
+        {/* Active Buses */}
+        <ActiveBusList
+          buses={MOCK_BUSES}
+          selectedBusId={selectedBus?.id ?? null}
+          onSelectBus={handleSelectBus}
+        />
+      </main>
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
