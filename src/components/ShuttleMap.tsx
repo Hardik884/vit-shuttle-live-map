@@ -3,26 +3,27 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-
 import L from "leaflet";
 
 // VIT Vellore campus center
-const VIT_CENTER: [number, number] = [12.9692, 79.1559];
+const VIT_CENTER: [number, number] = [12.9700, 79.1610];
 
 // VIT campus shuttle stops
 const STOPS: { name: string; position: [number, number]; waiting: number }[] = [
-  { name: "Main Gate", position: [12.9710, 79.1555], waiting: 12 },
-  { name: "Men's Hostel", position: [12.9720, 79.1590], waiting: 24 },
-  { name: "Technology Tower", position: [12.9685, 79.1600], waiting: 8 },
-  { name: "SJT", position: [12.9695, 79.1530], waiting: 15 },
-  { name: "GDN", position: [12.9665, 79.1560], waiting: 5 },
+  { name: "Architecture Block", position: [12.972676, 79.167124], waiting: 8 },
+  { name: "PRP", position: [12.97228, 79.165859], waiting: 14 },
+  { name: "SJT", position: [12.971728, 79.163482], waiting: 20 },
+  { name: "LH-E/F", position: [12.971534, 79.162317], waiting: 6 },
+  { name: "LH-C/D", position: [12.971346, 79.160748], waiting: 10 },
+  { name: "TT", position: [12.970791, 79.158697], waiting: 15 },
+  { name: "FoodCourt", position: [12.969833, 79.158697], waiting: 18 },
+  { name: "Foodys Circle/SMV", position: [12.969718, 79.158206], waiting: 7 },
+  { name: "Anna Auditorium", position: [12.969677, 79.155954], waiting: 12 },
+  { name: "GDN/CDMM", position: [12.96934, 79.155302], waiting: 5 },
+  { name: "Main Gate", position: [12.968483, 79.156078], waiting: 22 },
+  { name: "Main Building", position: [12.96885, 79.155936], waiting: 9 },
+  { name: "Library", position: [12.96881, 79.156874], waiting: 11 },
 ];
 
-// Shuttle route polyline
-const ROUTE_PATH: [number, number][] = [
-  STOPS[0].position,
-  STOPS[1].position,
-  STOPS[2].position,
-  STOPS[4].position,
-  STOPS[3].position,
-  STOPS[0].position,
-];
+// Shuttle route polyline (connecting all stops in order, looping back)
+const ROUTE_PATH: [number, number][] = STOPS.map(s => s.position).concat([STOPS[0].position]);
 
 interface Bus {
   id: string;
@@ -37,11 +38,11 @@ interface Bus {
 }
 
 const MOCK_BUSES: Bus[] = [
-  { id: "n1", name: "N1", route: "North Loop", position: [12.9712, 79.1568], occupancy: 43, capacity: 60, speed: 12, driver: "Rajesh Kumar", eta: 0 },
-  { id: "n2", name: "N2", route: "North Loop", position: [12.9700, 79.1580], occupancy: 27, capacity: 60, speed: 18, driver: "Suresh Babu", eta: 4 },
-  { id: "e1", name: "E1", route: "East Ring", position: [12.9688, 79.1605], occupancy: 44, capacity: 60, speed: 0, driver: "Arun Prasad", eta: 0 },
-  { id: "w1", name: "W1", route: "West Circuit", position: [12.9690, 79.1525], occupancy: 52, capacity: 60, speed: 8, driver: "Vijay Nair", eta: 2 },
-  { id: "s1", name: "S1", route: "South Express", position: [12.9660, 79.1555], occupancy: 52, capacity: 60, speed: 15, driver: "Karthik Rajan", eta: 6 },
+  { id: "n1", name: "N1", route: "North Loop", position: [12.9722, 79.1660], occupancy: 43, capacity: 60, speed: 12, driver: "Rajesh Kumar", eta: 0 },
+  { id: "n2", name: "N2", route: "North Loop", position: [12.9715, 79.1630], occupancy: 27, capacity: 60, speed: 18, driver: "Suresh Babu", eta: 4 },
+  { id: "e1", name: "E1", route: "East Ring", position: [12.9708, 79.1590], occupancy: 44, capacity: 60, speed: 0, driver: "Arun Prasad", eta: 0 },
+  { id: "w1", name: "W1", route: "West Circuit", position: [12.9697, 79.1575], occupancy: 52, capacity: 60, speed: 8, driver: "Vijay Nair", eta: 2 },
+  { id: "s1", name: "S1", route: "South Express", position: [12.9690, 79.1560], occupancy: 52, capacity: 60, speed: 15, driver: "Karthik Rajan", eta: 6 },
 ];
 
 const createStopIcon = () =>
