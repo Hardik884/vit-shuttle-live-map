@@ -106,8 +106,6 @@ const ShuttleMap = ({ buses, onSelectBus, selectedBusId, userLocation }: Shuttle
             <Popup>
               <div className="font-sans text-xs">
                 <strong>{stop.name}</strong>
-                <br />
-                {stop.waiting} waiting
               </div>
             </Popup>
           </Marker>
