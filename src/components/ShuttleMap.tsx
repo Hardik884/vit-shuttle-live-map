@@ -52,6 +52,14 @@ const createBusIcon = (name: string, isSelected = false) =>
     iconAnchor: [14, 14],
   });
 
+const createUserIcon = () =>
+  L.divIcon({
+    className: "",
+    html: `<div style="width:16px;height:16px;border-radius:50%;background:hsl(212,100%,45%);border:2px solid hsl(0,0%,100%);box-shadow:0 0 0 4px rgba(59,130,246,0.25);"></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
+
 function AnimateBuses({ buses, onSelectBus, selectedBusId }: { buses: Bus[]; onSelectBus: (bus: Bus) => void; selectedBusId: string | null }) {
   return (
     <>
@@ -77,9 +85,10 @@ interface ShuttleMapProps {
   buses: Bus[];
   onSelectBus: (bus: Bus) => void;
   selectedBusId: string | null;
+  userLocation: [number, number] | null;
 }
 
-const ShuttleMap = ({ buses, onSelectBus, selectedBusId }: ShuttleMapProps) => {
+const ShuttleMap = ({ buses, onSelectBus, selectedBusId, userLocation }: ShuttleMapProps) => {
   return (
     <div className="relative w-full h-full rounded-xl overflow-hidden border border-border shadow-sm">
       <MapContainer
@@ -103,6 +112,15 @@ const ShuttleMap = ({ buses, onSelectBus, selectedBusId }: ShuttleMapProps) => {
             </Popup>
           </Marker>
         ))}
+        {userLocation && (
+          <Marker position={userLocation} icon={createUserIcon()}>
+            <Popup>
+              <div className="font-sans text-xs">
+                <strong>Your Location</strong>
+              </div>
+            </Popup>
+          </Marker>
+        )}
         <AnimateBuses buses={buses} onSelectBus={onSelectBus} selectedBusId={selectedBusId} />
       </MapContainer>
       <div className="absolute bottom-3 left-3 bg-card/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-border text-[11px] text-muted-foreground">
@@ -113,4 +131,5 @@ const ShuttleMap = ({ buses, onSelectBus, selectedBusId }: ShuttleMapProps) => {
 };
 
 export type { Bus };
+export { STOPS };
 export default ShuttleMap;

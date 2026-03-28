@@ -8,6 +8,7 @@ interface ApiBus {
   bus_id: string;
   lat: number;
   lon: number;
+  speed?: number;
   status?: string;
 }
 
@@ -43,6 +44,7 @@ const formatBusName = (busId: string) => {
 const mapGpsToBus = (apiBus: ApiBus, index: number): Bus => {
   const fallback = FALLBACK_BUS_DETAILS[index % FALLBACK_BUS_DETAILS.length];
   const isNoData = apiBus.status?.toUpperCase() === "NO_DATA";
+  const apiSpeed = Number.isFinite(apiBus.speed) ? Number(apiBus.speed) : null;
 
   return {
     id: apiBus.bus_id,
@@ -51,7 +53,7 @@ const mapGpsToBus = (apiBus: ApiBus, index: number): Bus => {
     position: [apiBus.lat, apiBus.lon],
     occupancy: fallback.occupancy,
     capacity: fallback.capacity,
-    speed: isNoData ? 0 : fallback.speed,
+    speed: isNoData ? 0 : apiSpeed ?? fallback.speed,
     driver: fallback.driver,
     eta: isNoData ? 0 : fallback.eta,
   };

@@ -3,9 +3,11 @@ import type { Bus } from "./ShuttleMap";
 
 interface BusInfoPanelProps {
   bus: Bus | null;
+  timeToNearestStopMinutes: number | null;
+  hasUserLocation: boolean;
 }
 
-const BusInfoPanel = ({ bus }: BusInfoPanelProps) => {
+const BusInfoPanel = ({ bus, timeToNearestStopMinutes, hasUserLocation }: BusInfoPanelProps) => {
   if (!bus) {
     return (
       <div className="bg-card rounded-xl border border-border p-6 flex flex-col items-center justify-center text-center min-h-[300px] animate-slide-up">
@@ -37,18 +39,22 @@ const BusInfoPanel = ({ bus }: BusInfoPanelProps) => {
           </span>
         </div>
 
-        {/* Time to Reach Next Stop */}
+        {/* Time for Bus to Reach Next Stop */}
         <div className="bg-surface-sunken rounded-lg p-4 text-center mb-3">
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Time to Reach Next Stop</p>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Time for Bus to Reach Next Stop</p>
           <p className="font-mono-track text-3xl font-bold">{bus.eta}</p>
           <p className="text-xs text-muted-foreground">min</p>
         </div>
 
-        {/* Time to Reach Bus */}
+        {/* Time for You to Reach Nearest Stop */}
         <div className="bg-surface-sunken rounded-lg p-4 text-center mb-4">
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Time to Reach Bus</p>
-          <p className="font-mono-track text-3xl font-bold">{bus.eta + 2}</p>
-          <p className="text-xs text-muted-foreground">min</p>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Time for You to Reach Nearest Stop</p>
+          <p className="font-mono-track text-3xl font-bold">
+            {timeToNearestStopMinutes ?? "--"}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {hasUserLocation ? "min" : "enable location"}
+          </p>
         </div>
 
         {/* Occupancy */}
