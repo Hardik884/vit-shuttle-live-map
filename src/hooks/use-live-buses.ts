@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Bus } from "@/components/ShuttleMap";
 
 const BUSES_API_URL = "https://embedded-vit-gps-tracking.onrender.com/buses";
+const ETA_API_URL = "https://13.206.65.251.nip.io/predict";
 const DEFAULT_POLL_INTERVAL_MS = 10000;
 
 interface ApiBus {
@@ -14,6 +15,13 @@ interface ApiBus {
 
 interface ApiResponse {
   buses: ApiBus[];
+}
+
+interface EtaResponse {
+  eta_minutes?: number;
+  next_stop?: string;
+  current_stop?: string;
+  is_peak_hour?: boolean;
 }
 
 interface FallbackBusDetails {
@@ -41,10 +49,32 @@ const formatBusName = (busId: string) => {
   return compact || busId;
 };
 
-const mapGpsToBus = (apiBus: ApiBus, index: number): Bus => {
+// Call this whenever fresh GPS coordinates are received from the live buses API.
+const fetchETA = async (lat: number, lon: number): Promise<EtaResponse | null> => {
+  try {
+    const res = await fetch(ETA_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lat, lon }),
+    });
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const data = (await res.json()) as EtaResponse;
+    return data;
+  } catch (err) {
+    console.error("ETA fetch failed:", err);
+    return null;
+  }
+};
+
+const mapGpsToBus = (apiBus: ApiBus, index: number, etaData: EtaResponse | null): Bus => {
   const fallback = FALLBACK_BUS_DETAILS[index % FALLBACK_BUS_DETAILS.length];
   const isNoData = apiBus.status?.toUpperCase() === "NO_DATA";
   const apiSpeed = Number.isFinite(apiBus.speed) ? Number(apiBus.speed) : null;
+  const etaFromApi = Number.isFinite(etaData?.eta_minutes) ? Number(etaData?.eta_minutes) : null;
 
   return {
     id: apiBus.bus_id,
@@ -55,7 +85,7 @@ const mapGpsToBus = (apiBus: ApiBus, index: number): Bus => {
     capacity: fallback.capacity,
     speed: isNoData ? 0 : apiSpeed ?? fallback.speed,
     driver: fallback.driver,
-    eta: isNoData ? 0 : fallback.eta,
+    eta: isNoData ? 0 : etaFromApi ?? fallback.eta,
   };
 };
 
@@ -83,9 +113,14 @@ export function useLiveBuses(options: UseLiveBusesOptions = {}) {
           return;
         }
 
-        const mappedBuses = data.buses
-          .filter((bus) => isValidCoordinate(bus.lat, bus.lon))
-          .map((bus, index) => mapGpsToBus(bus, index));
+        const validBuses = data.buses.filter((bus) => isValidCoordinate(bus.lat, bus.lon));
+
+        const mappedBuses = await Promise.all(
+          validBuses.map(async (bus, index) => {
+            const etaData = await fetchETA(bus.lat, bus.lon);
+            return mapGpsToBus(bus, index, etaData);
+          })
+        );
 
         if (!mappedBuses.length || !isMounted) {
           return;
