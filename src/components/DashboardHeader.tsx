@@ -28,15 +28,15 @@ const DashboardHeader = ({ liveBusCount, isAdmin = false }: DashboardHeaderProps
   }, [isDark]);
 
   return (
-    <header className="sticky top-0 z-[1000] bg-primary text-primary-foreground">
+    <header className="sticky top-0 z-[1000] bg-nav text-nav-foreground">
       <div className="w-full px-2 sm:px-3 h-12 sm:h-14 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary-foreground/10 border border-primary-foreground/20 flex items-center justify-center">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-nav-foreground/10 border border-nav-foreground/20 flex items-center justify-center">
             <Bus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </div>
           <div>
             <h1 className="text-xs sm:text-sm font-semibold tracking-tight leading-none">NexTrack</h1>
-            <p className="text-[10px] sm:text-[11px] text-primary-foreground/50">
+            <p className="text-[10px] sm:text-[11px] text-nav-foreground/50">
               VIT Vellore · {isAdmin ? "Admin Dashboard" : "Student Dashboard"}
             </p>
           </div>
@@ -45,7 +45,7 @@ const DashboardHeader = ({ liveBusCount, isAdmin = false }: DashboardHeaderProps
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => setIsDark(!isDark)}
-            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary-foreground/10 border border-primary-foreground/20 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-nav-foreground/10 border border-nav-foreground/20 flex items-center justify-center hover:bg-nav-foreground/20 transition-colors"
             aria-label="Toggle dark mode"
           >
             {isDark ? <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
@@ -57,14 +57,14 @@ const DashboardHeader = ({ liveBusCount, isAdmin = false }: DashboardHeaderProps
           {isAdmin ? (
             <Link
               to="/"
-              className="text-[11px] sm:text-sm font-medium text-primary-foreground hover:text-primary-foreground/80 transition-colors"
+              className="text-[11px] sm:text-sm font-medium text-nav-foreground hover:text-nav-foreground/80 transition-colors"
             >
               Student View
             </Link>
           ) : (
             <Link
               to="/admin-login"
-              className="text-[11px] sm:text-sm font-medium text-primary-foreground hover:text-primary-foreground/80 transition-colors"
+              className="text-[11px] sm:text-sm font-medium text-nav-foreground hover:text-nav-foreground/80 transition-colors"
             >
               Admin Login
             </Link>
