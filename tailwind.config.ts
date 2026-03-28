@@ -52,6 +52,10 @@ export default {
         "status-live": "hsl(var(--status-live))",
         "status-warning": "hsl(var(--status-warning))",
         "status-danger": "hsl(var(--status-danger))",
+        nav: {
+          DEFAULT: "hsl(var(--nav))",
+          foreground: "hsl(var(--nav-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
