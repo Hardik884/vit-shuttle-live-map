@@ -77,10 +77,10 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <DashboardHeader liveBusCount={buses.length} />
       
-      <main className="w-full px-4 sm:px-6 lg:px-10 py-4 space-y-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <main className="w-full px-3 sm:px-6 lg:px-10 py-3 sm:py-4 space-y-3 sm:space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
           {/* Map */}
-          <div className="lg:col-span-2 h-[60vh] lg:h-[75vh]">
+          <div className="lg:col-span-2 h-[45vh] sm:h-[55vh] lg:h-[75vh]">
             <ShuttleMap
               buses={buses}
               onSelectBus={handleSelectBus}
@@ -90,7 +90,7 @@ const Index = () => {
           </div>
 
           {/* Info Panel */}
-          <div className="lg:col-span-1 overflow-y-auto max-h-[60vh] lg:max-h-[75vh]">
+          <div className="lg:col-span-1 overflow-y-auto max-h-[50vh] lg:max-h-[75vh]">
             <BusInfoPanel bus={selectedBus} timeToNearestStopMinutes={timeToNearestStopMinutes} hasUserLocation={Boolean(userLocation)} />
           </div>
         </div>
