@@ -67,92 +67,94 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background">
       <DashboardHeader liveBusCount={activeBuses.length} isAdmin />
 
-      <main className="w-full px-4 sm:px-6 lg:px-10 py-4 space-y-4">
+      <main className="w-full px-3 sm:px-6 lg:px-10 py-3 sm:py-4 space-y-3 sm:space-y-4">
         {/* Stats Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {stats.map((s) => (
-            <div key={s.label} className="bg-card rounded-xl border border-border p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center">
-                <s.icon className="w-5 h-5 text-foreground" />
+            <div key={s.label} className="bg-card rounded-xl border border-border p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                <s.icon className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" />
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">{s.label}</p>
-                <p className="text-xl font-semibold font-mono-track">{s.value}</p>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{s.label}</p>
+                <p className="text-lg sm:text-xl font-semibold font-mono-track">{s.value}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
           {/* Fleet Table */}
-          <div className="lg:col-span-2 bg-card rounded-xl border border-border p-4">
-            <div className="flex items-center justify-between mb-4">
+          <div className="lg:col-span-2 bg-card rounded-xl border border-border p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 sm:mb-4">
               <h2 className="text-sm font-semibold">Fleet Overview</h2>
               <Tabs value={filter} onValueChange={setFilter}>
                 <TabsList className="h-8">
-                  <TabsTrigger value="all" className="text-xs px-2 py-1">All</TabsTrigger>
-                  <TabsTrigger value="active" className="text-xs px-2 py-1">Active</TabsTrigger>
-                  <TabsTrigger value="at-stop" className="text-xs px-2 py-1">At Stop</TabsTrigger>
-                  <TabsTrigger value="maintenance" className="text-xs px-2 py-1">Maintenance</TabsTrigger>
+                  <TabsTrigger value="all" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">All</TabsTrigger>
+                  <TabsTrigger value="active" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">Active</TabsTrigger>
+                  <TabsTrigger value="at-stop" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">At Stop</TabsTrigger>
+                  <TabsTrigger value="maintenance" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">Maint.</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
 
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-xs">Bus #</TableHead>
-                  <TableHead className="text-xs">Route</TableHead>
-                  <TableHead className="text-xs">Driver</TableHead>
-                  <TableHead className="text-xs">Status</TableHead>
-                  <TableHead className="text-xs">Occupancy</TableHead>
-                  <TableHead className="text-xs">ETA</TableHead>
-                  <TableHead className="text-xs w-16"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredBuses.map((bus) => {
-                  const occ = Math.round((bus.occupancy / bus.capacity) * 100);
-                  const barColor = occ > 85 ? "bg-status-danger" : occ > 60 ? "bg-status-warning" : "bg-status-live";
-                  return (
-                    <TableRow key={bus.id} className={selectedBus?.id === bus.id ? "bg-accent" : ""}>
-                      <TableCell className="font-semibold text-sm">{bus.name}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground">{bus.route}</TableCell>
-                      <TableCell className="text-xs">{bus.driver}</TableCell>
-                      <TableCell>
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                          bus.status === "active"
-                            ? "bg-status-live/10 text-status-live border border-status-live/30"
-                            : "bg-secondary text-muted-foreground border border-border"
-                        }`}>
-                          {bus.status === "active" && <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />}
-                          {bus.status === "active" ? "On Route" : "At Stop"}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
-                            <div className={`h-full rounded-full ${barColor}`} style={{ width: `${occ}%` }} />
+            <div className="overflow-x-auto -mx-3 sm:-mx-4 px-3 sm:px-4">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs">Bus #</TableHead>
+                    <TableHead className="text-xs hidden sm:table-cell">Route</TableHead>
+                    <TableHead className="text-xs hidden md:table-cell">Driver</TableHead>
+                    <TableHead className="text-xs">Status</TableHead>
+                    <TableHead className="text-xs hidden sm:table-cell">Occupancy</TableHead>
+                    <TableHead className="text-xs">ETA</TableHead>
+                    <TableHead className="text-xs w-10 sm:w-16"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredBuses.map((bus) => {
+                    const occ = Math.round((bus.occupancy / bus.capacity) * 100);
+                    const barColor = occ > 85 ? "bg-status-danger" : occ > 60 ? "bg-status-warning" : "bg-status-live";
+                    return (
+                      <TableRow key={bus.id} className={selectedBus?.id === bus.id ? "bg-accent" : ""}>
+                        <TableCell className="font-semibold text-xs sm:text-sm">{bus.name}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground hidden sm:table-cell">{bus.route}</TableCell>
+                        <TableCell className="text-xs hidden md:table-cell">{bus.driver}</TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium ${
+                            bus.status === "active"
+                              ? "bg-status-live/10 text-status-live border border-status-live/30"
+                              : "bg-secondary text-muted-foreground border border-border"
+                          }`}>
+                            {bus.status === "active" && <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />}
+                            {bus.status === "active" ? "On Route" : "At Stop"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          <div className="flex items-center gap-2">
+                            <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full ${barColor}`} style={{ width: `${occ}%` }} />
+                            </div>
+                            <span className="text-[11px] font-mono-track">{occ}%</span>
                           </div>
-                          <span className="text-[11px] font-mono-track">{occ}%</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-xs font-mono-track">{bus.eta} min</TableCell>
-                      <TableCell>
-                        <button
-                          onClick={() => setSelectedBus(bus)}
-                          aria-label={`View details for bus ${bus.name}`}
-                          title={`View details for bus ${bus.name}`}
-                          className="p-1.5 rounded-md hover:bg-accent transition-colors"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-muted-foreground" />
-                        </button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                        </TableCell>
+                        <TableCell className="text-xs font-mono-track">{bus.eta} min</TableCell>
+                        <TableCell>
+                          <button
+                            onClick={() => setSelectedBus(bus)}
+                            aria-label={`View details for bus ${bus.name}`}
+                            title={`View details for bus ${bus.name}`}
+                            className="p-1 sm:p-1.5 rounded-md hover:bg-accent transition-colors"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           </div>
 
           {/* Detail Panel */}
