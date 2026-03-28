@@ -36,14 +36,6 @@ interface Bus {
   eta: number;
 }
 
-const MOCK_BUSES: Bus[] = [
-  { id: "n1", name: "N1", route: "North Loop", position: [12.9722, 79.1660], occupancy: 43, capacity: 60, speed: 12, driver: "Rajesh Kumar", eta: 0 },
-  { id: "n2", name: "N2", route: "North Loop", position: [12.9715, 79.1630], occupancy: 27, capacity: 60, speed: 18, driver: "Suresh Babu", eta: 4 },
-  { id: "e1", name: "E1", route: "East Ring", position: [12.9708, 79.1590], occupancy: 44, capacity: 60, speed: 0, driver: "Arun Prasad", eta: 0 },
-  { id: "w1", name: "W1", route: "West Circuit", position: [12.9697, 79.1575], occupancy: 52, capacity: 60, speed: 8, driver: "Vijay Nair", eta: 2 },
-  { id: "s1", name: "S1", route: "South Express", position: [12.9690, 79.1560], occupancy: 52, capacity: 60, speed: 15, driver: "Karthik Rajan", eta: 6 },
-];
-
 const createStopIcon = () =>
   L.divIcon({
     className: "",
@@ -120,6 +112,5 @@ const ShuttleMap = ({ buses, onSelectBus, selectedBusId }: ShuttleMapProps) => {
   );
 };
 
-export { MOCK_BUSES };
 export type { Bus };
 export default ShuttleMap;

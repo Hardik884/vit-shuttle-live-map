@@ -3,13 +3,12 @@ import DashboardHeader from "@/components/DashboardHeader";
 import ShuttleMap from "@/components/ShuttleMap";
 import BusInfoPanel from "@/components/BusInfoPanel";
 import ActiveBusList from "@/components/ActiveBusList";
-import { MOCK_BUSES } from "@/components/ShuttleMap";
 import type { Bus } from "@/components/ShuttleMap";
 import { useLiveBuses } from "@/hooks/use-live-buses";
 
 const Index = () => {
   const { buses, busIds } = useLiveBuses();
-  const [selectedBusId, setSelectedBusId] = useState<string | null>(MOCK_BUSES[0]?.id ?? null);
+  const [selectedBusId, setSelectedBusId] = useState<string | null>(null);
 
   const safeSelectedBusId = selectedBusId && busIds.has(selectedBusId) ? selectedBusId : buses[0]?.id ?? null;
 

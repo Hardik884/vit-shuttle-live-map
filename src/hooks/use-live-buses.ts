@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { MOCK_BUSES } from "@/components/ShuttleMap";
 import type { Bus } from "@/components/ShuttleMap";
 
 const BUSES_API_URL = "https://embedded-vit-gps-tracking.onrender.com/buses";
@@ -16,6 +15,23 @@ interface ApiResponse {
   buses: ApiBus[];
 }
 
+interface FallbackBusDetails {
+  route: string;
+  occupancy: number;
+  capacity: number;
+  speed: number;
+  driver: string;
+  eta: number;
+}
+
+const FALLBACK_BUS_DETAILS: FallbackBusDetails[] = [
+  { route: "North Loop", occupancy: 43, capacity: 60, speed: 12, driver: "Rajesh Kumar", eta: 0 },
+  { route: "North Loop", occupancy: 27, capacity: 60, speed: 18, driver: "Suresh Babu", eta: 4 },
+  { route: "East Ring", occupancy: 44, capacity: 60, speed: 0, driver: "Arun Prasad", eta: 0 },
+  { route: "West Circuit", occupancy: 52, capacity: 60, speed: 8, driver: "Vijay Nair", eta: 2 },
+  { route: "South Express", occupancy: 52, capacity: 60, speed: 15, driver: "Karthik Rajan", eta: 6 },
+];
+
 const isValidCoordinate = (lat: number, lon: number) =>
   Number.isFinite(lat) && Number.isFinite(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
 
@@ -25,15 +41,18 @@ const formatBusName = (busId: string) => {
 };
 
 const mapGpsToBus = (apiBus: ApiBus, index: number): Bus => {
-  const fallback = MOCK_BUSES[index % MOCK_BUSES.length];
+  const fallback = FALLBACK_BUS_DETAILS[index % FALLBACK_BUS_DETAILS.length];
   const isNoData = apiBus.status?.toUpperCase() === "NO_DATA";
 
   return {
-    ...fallback,
     id: apiBus.bus_id,
     name: formatBusName(apiBus.bus_id),
+    route: fallback.route,
     position: [apiBus.lat, apiBus.lon],
+    occupancy: fallback.occupancy,
+    capacity: fallback.capacity,
     speed: isNoData ? 0 : fallback.speed,
+    driver: fallback.driver,
     eta: isNoData ? 0 : fallback.eta,
   };
 };
@@ -44,7 +63,7 @@ interface UseLiveBusesOptions {
 
 export function useLiveBuses(options: UseLiveBusesOptions = {}) {
   const { pollIntervalMs = DEFAULT_POLL_INTERVAL_MS } = options;
-  const [buses, setBuses] = useState<Bus[]>(MOCK_BUSES);
+  const [buses, setBuses] = useState<Bus[]>([]);
   const [isUsingLiveData, setIsUsingLiveData] = useState(false);
 
   useEffect(() => {
