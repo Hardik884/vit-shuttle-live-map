@@ -121,10 +121,6 @@ const ShuttleMap = ({ onSelectBus, selectedBusId }: ShuttleMapProps) => {
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
-        <Polyline
-          positions={ROUTE_PATH}
-          pathOptions={{ color: "hsl(0,0%,7%)", weight: 2, opacity: 0.3, dashArray: "6 4" }}
-        />
         {STOPS.map((stop) => (
           <Marker key={stop.name} position={stop.position} icon={createStopIcon()}>
             <Popup>
