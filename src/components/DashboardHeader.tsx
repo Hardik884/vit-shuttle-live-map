@@ -1,11 +1,12 @@
-import { Bell, Bus } from "lucide-react";
+import { Bus } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface DashboardHeaderProps {
   liveBusCount: number;
-  notificationCount: number;
+  isAdmin?: boolean;
 }
 
-const DashboardHeader = ({ liveBusCount, notificationCount }: DashboardHeaderProps) => {
+const DashboardHeader = ({ liveBusCount, isAdmin = false }: DashboardHeaderProps) => {
   return (
     <header className="sticky top-0 z-[1000] bg-primary text-primary-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
@@ -15,7 +16,9 @@ const DashboardHeader = ({ liveBusCount, notificationCount }: DashboardHeaderPro
           </div>
           <div>
             <h1 className="text-sm font-semibold tracking-tight leading-none">NexTrack</h1>
-            <p className="text-[11px] text-primary-foreground/50">VIT Vellore · Student Dashboard</p>
+            <p className="text-[11px] text-primary-foreground/50">
+              VIT Vellore · {isAdmin ? "Admin Dashboard" : "Student Dashboard"}
+            </p>
           </div>
         </div>
 
@@ -24,14 +27,21 @@ const DashboardHeader = ({ liveBusCount, notificationCount }: DashboardHeaderPro
             <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />
             <span className="text-xs font-medium text-status-live">{liveBusCount} buses live</span>
           </div>
-          <button className="relative p-2 rounded-lg hover:bg-primary-foreground/10 transition-colors">
-            <Bell className="w-4 h-4" />
-            {notificationCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-status-danger text-[10px] font-bold flex items-center justify-center">
-                {notificationCount}
-              </span>
-            )}
-          </button>
+          {isAdmin ? (
+            <Link
+              to="/"
+              className="text-xs text-primary-foreground/60 hover:text-primary-foreground transition-colors"
+            >
+              Student View
+            </Link>
+          ) : (
+            <Link
+              to="/admin-login"
+              className="text-xs text-primary-foreground/60 hover:text-primary-foreground transition-colors"
+            >
+              Admin Login
+            </Link>
+          )}
         </div>
       </div>
     </header>

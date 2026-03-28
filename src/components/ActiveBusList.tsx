@@ -15,11 +15,7 @@ const ActiveBusList = ({ buses, selectedBusId, onSelectBus }: ActiveBusListProps
       </div>
       <div className="grid grid-cols-5 gap-2">
         {buses.map((bus) => {
-          const occupancy = Math.round((bus.occupancy / bus.capacity) * 100);
           const isSelected = bus.id === selectedBusId;
-          const occColor =
-            occupancy > 85 ? "text-status-danger" : occupancy > 60 ? "text-status-warning" : "text-status-live";
-
           return (
             <button
               key={bus.id}
@@ -33,9 +29,6 @@ const ActiveBusList = ({ buses, selectedBusId, onSelectBus }: ActiveBusListProps
               <span className="text-sm font-semibold">{bus.name}</span>
               <span className={`text-[11px] ${isSelected ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                 {bus.eta} min
-              </span>
-              <span className={`text-[11px] font-mono-track font-medium ${isSelected ? "text-primary-foreground/80" : occColor}`}>
-                {occupancy}%
               </span>
             </button>
           );
