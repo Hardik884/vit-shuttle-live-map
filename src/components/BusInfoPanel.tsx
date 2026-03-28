@@ -1,4 +1,4 @@
-import { MapPin, Gauge, User, Clock } from "lucide-react";
+import { MapPin, Gauge, Clock } from "lucide-react";
 import type { Bus } from "./ShuttleMap";
 
 interface BusInfoPanelProps {
@@ -37,10 +37,17 @@ const BusInfoPanel = ({ bus }: BusInfoPanelProps) => {
           </span>
         </div>
 
-        {/* ETA */}
-        <div className="bg-surface-sunken rounded-lg p-4 text-center mb-4">
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Estimated Arrival</p>
+        {/* Time to Reach Next Stop */}
+        <div className="bg-surface-sunken rounded-lg p-4 text-center mb-3">
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Time to Reach Next Stop</p>
           <p className="font-mono-track text-3xl font-bold">{bus.eta}</p>
+          <p className="text-xs text-muted-foreground">min</p>
+        </div>
+
+        {/* Time to Reach Bus */}
+        <div className="bg-surface-sunken rounded-lg p-4 text-center mb-4">
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Time to Reach Bus</p>
+          <p className="font-mono-track text-3xl font-bold">{bus.eta + 2}</p>
           <p className="text-xs text-muted-foreground">min</p>
         </div>
 
@@ -77,16 +84,6 @@ const BusInfoPanel = ({ bus }: BusInfoPanelProps) => {
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="space-y-2">
-        <button className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
-          Book This Bus
-        </button>
-        <button className="w-full py-2.5 rounded-lg bg-secondary text-secondary-foreground text-sm font-medium hover:bg-accent transition-colors">
-          View Full Details
-        </button>
-      </div>
-
       {/* Quick Stats */}
       <div className="bg-card rounded-xl border border-border p-4">
         <h3 className="text-sm font-semibold mb-3">Quick Stats</h3>
@@ -94,14 +91,11 @@ const BusInfoPanel = ({ bus }: BusInfoPanelProps) => {
           {[
             { label: "Average Speed", value: `${bus.speed} km/h`, icon: Gauge },
             { label: "Distance to Stop", value: "0.8 km", icon: MapPin },
-            { label: "GPS Accuracy", value: "±3 m", icon: MapPin, accent: true },
             { label: "Last Updated", value: "Just now", icon: Clock },
           ].map((stat) => (
             <div key={stat.label} className="flex justify-between items-center text-xs">
               <span className="text-muted-foreground">{stat.label}</span>
-              <span className={`font-mono-track font-medium ${stat.accent ? "text-status-live" : ""}`}>
-                {stat.value}
-              </span>
+              <span className="font-mono-track font-medium">{stat.value}</span>
             </div>
           ))}
         </div>

@@ -15,7 +15,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader liveBusCount={MOCK_BUSES.length} notificationCount={2} />
+      <DashboardHeader liveBusCount={MOCK_BUSES.length} />
       
       <main className="w-full px-4 sm:px-6 lg:px-10 py-4 space-y-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
