@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
-import { MOCK_BUSES } from "@/components/ShuttleMap";
 import type { Bus } from "@/components/ShuttleMap";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Bus as BusIcon, MapPin, Clock, Users, Eye } from "lucide-react";
+import { useLiveBuses } from "@/hooks/use-live-buses";
 
 type BusStatus = "active" | "at-stop" | "maintenance";
 
@@ -16,6 +16,7 @@ const getBusStatus = (bus: Bus): BusStatus => {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { buses } = useLiveBuses();
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
   const [filter, setFilter] = useState("all");
 
@@ -25,12 +26,12 @@ const AdminDashboard = () => {
     }
   }, [navigate]);
 
-  const busesWithStatus = MOCK_BUSES.map((b) => ({ ...b, status: getBusStatus(b) }));
+  const busesWithStatus = buses.map((b) => ({ ...b, status: getBusStatus(b) }));
   const activeBuses = busesWithStatus.filter((b) => b.status === "active");
   const atStopBuses = busesWithStatus.filter((b) => b.status === "at-stop");
-  const avgOccupancy = Math.round(
-    MOCK_BUSES.reduce((sum, b) => sum + (b.occupancy / b.capacity) * 100, 0) / MOCK_BUSES.length
-  );
+  const avgOccupancy = buses.length
+    ? Math.round(buses.reduce((sum, b) => sum + (b.occupancy / b.capacity) * 100, 0) / buses.length)
+    : 0;
 
   const filteredBuses =
     filter === "all" ? busesWithStatus :
@@ -39,11 +40,25 @@ const AdminDashboard = () => {
     busesWithStatus.filter((b) => b.status === "maintenance");
 
   const stats = [
-    { label: "Total Buses", value: MOCK_BUSES.length, icon: BusIcon },
+    { label: "Total Buses", value: buses.length, icon: BusIcon },
     { label: "On Route", value: activeBuses.length, icon: MapPin },
     { label: "At Stop", value: atStopBuses.length, icon: Clock },
     { label: "Avg Occupancy", value: `${avgOccupancy}%`, icon: Users },
   ];
+
+  useEffect(() => {
+    if (!selectedBus) {
+      return;
+    }
+
+    const updated = buses.find((bus) => bus.id === selectedBus.id);
+    if (updated) {
+      setSelectedBus(updated);
+      return;
+    }
+
+    setSelectedBus(null);
+  }, [buses, selectedBus]);
 
   const occupancyPercent = selectedBus ? Math.round((selectedBus.occupancy / selectedBus.capacity) * 100) : 0;
   const occColor = occupancyPercent > 85 ? "bg-status-danger" : occupancyPercent > 60 ? "bg-status-warning" : "bg-status-live";
@@ -126,6 +141,8 @@ const AdminDashboard = () => {
                       <TableCell>
                         <button
                           onClick={() => setSelectedBus(bus)}
+                          aria-label={`View details for bus ${bus.name}`}
+                          title={`View details for bus ${bus.name}`}
                           className="p-1.5 rounded-md hover:bg-accent transition-colors"
                         >
                           <Eye className="w-3.5 h-3.5 text-muted-foreground" />

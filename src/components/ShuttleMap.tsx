@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import L from "leaflet";
 
 // VIT Vellore campus center
@@ -52,24 +51,22 @@ const createStopIcon = () =>
     iconAnchor: [6, 6],
   });
 
-const createBusIcon = (name: string) =>
+const createBusIcon = (name: string, isSelected = false) =>
   L.divIcon({
     className: "",
-    html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:hsl(0,0%,7%);color:white;font-size:10px;font-weight:600;font-family:'Space Grotesk',sans-serif;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"><span>${name}</span></div>`,
+    html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${isSelected ? "hsl(142,70%,30%)" : "hsl(0,0%,7%)"};color:white;font-size:10px;font-weight:600;font-family:'Space Grotesk',sans-serif;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"><span>${name}</span></div>`,
     iconSize: [28, 28],
     iconAnchor: [14, 14],
   });
 
-function AnimateBuses({ buses, onSelectBus }: { buses: Bus[]; onSelectBus: (bus: Bus) => void }) {
-  const map = useMap();
-  
+function AnimateBuses({ buses, onSelectBus, selectedBusId }: { buses: Bus[]; onSelectBus: (bus: Bus) => void; selectedBusId: string | null }) {
   return (
     <>
       {buses.map((bus) => (
         <Marker
           key={bus.id}
           position={bus.position}
-          icon={createBusIcon(bus.name)}
+          icon={createBusIcon(bus.name, bus.id === selectedBusId)}
           eventHandlers={{ click: () => onSelectBus(bus) }}
         >
           <Popup className="leaflet-popup-custom">
@@ -84,30 +81,12 @@ function AnimateBuses({ buses, onSelectBus }: { buses: Bus[]; onSelectBus: (bus:
 }
 
 interface ShuttleMapProps {
+  buses: Bus[];
   onSelectBus: (bus: Bus) => void;
   selectedBusId: string | null;
 }
 
-const ShuttleMap = ({ onSelectBus, selectedBusId }: ShuttleMapProps) => {
-  const [buses, setBuses] = useState<Bus[]>(MOCK_BUSES);
-
-  // Simulate real-time movement
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setBuses((prev) =>
-        prev.map((bus) => ({
-          ...bus,
-          position: [
-            bus.position[0] + (Math.random() - 0.5) * 0.0003,
-            bus.position[1] + (Math.random() - 0.5) * 0.0003,
-          ] as [number, number],
-          speed: Math.max(0, bus.speed + Math.floor((Math.random() - 0.5) * 4)),
-        }))
-      );
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
+const ShuttleMap = ({ buses, onSelectBus, selectedBusId }: ShuttleMapProps) => {
   return (
     <div className="relative w-full h-full rounded-xl overflow-hidden border border-border shadow-sm">
       <MapContainer
@@ -135,7 +114,7 @@ const ShuttleMap = ({ onSelectBus, selectedBusId }: ShuttleMapProps) => {
             </Popup>
           </Marker>
         ))}
-        <AnimateBuses buses={buses} onSelectBus={onSelectBus} />
+        <AnimateBuses buses={buses} onSelectBus={onSelectBus} selectedBusId={selectedBusId} />
       </MapContainer>
       <div className="absolute bottom-3 left-3 bg-card/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-border text-[11px] text-muted-foreground">
         VIT Vellore Campus · Live
