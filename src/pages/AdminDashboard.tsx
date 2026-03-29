@@ -4,12 +4,13 @@ import DashboardHeader from "@/components/DashboardHeader";
 import type { Bus } from "@/components/ShuttleMap";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Bus as BusIcon, MapPin, Clock, Users, Eye } from "lucide-react";
+import { Bus as BusIcon, MapPin, Clock, WifiOff, Eye } from "lucide-react";
 import { useLiveBuses } from "@/hooks/use-live-buses";
 
-type BusStatus = "active" | "at-stop" | "maintenance";
+type BusStatus = "active" | "at-stop" | "offline";
 
 const getBusStatus = (bus: Bus): BusStatus => {
+  if (bus.isOffline) return "offline";
   if (bus.speed === 0 && bus.eta === 0) return "at-stop";
   return "active";
 };
@@ -29,6 +30,7 @@ const AdminDashboard = () => {
   const busesWithStatus = buses.map((b) => ({ ...b, status: getBusStatus(b) }));
   const activeBuses = busesWithStatus.filter((b) => b.status === "active");
   const atStopBuses = busesWithStatus.filter((b) => b.status === "at-stop");
+  const offlineBuses = busesWithStatus.filter((b) => b.status === "offline");
   const avgOccupancy = buses.length
     ? Math.round(buses.reduce((sum, b) => sum + (b.occupancy / b.capacity) * 100, 0) / buses.length)
     : 0;
@@ -37,13 +39,13 @@ const AdminDashboard = () => {
     filter === "all" ? busesWithStatus :
     filter === "active" ? busesWithStatus.filter((b) => b.status === "active") :
     filter === "at-stop" ? busesWithStatus.filter((b) => b.status === "at-stop") :
-    busesWithStatus.filter((b) => b.status === "maintenance");
+    busesWithStatus.filter((b) => b.status === "offline");
 
   const stats = [
     { label: "Total Buses", value: buses.length, icon: BusIcon },
     { label: "On Route", value: activeBuses.length, icon: MapPin },
     { label: "At Stop", value: atStopBuses.length, icon: Clock },
-    { label: "Avg Occupancy", value: `${avgOccupancy}%`, icon: Users },
+    { label: "Offline", value: offlineBuses.length, icon: WifiOff },
   ];
 
   useEffect(() => {
@@ -93,7 +95,7 @@ const AdminDashboard = () => {
                   <TabsTrigger value="all" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">All</TabsTrigger>
                   <TabsTrigger value="active" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">Active</TabsTrigger>
                   <TabsTrigger value="at-stop" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">At Stop</TabsTrigger>
-                  <TabsTrigger value="maintenance" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">Maint.</TabsTrigger>
+                  <TabsTrigger value="offline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">Offline</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -127,7 +129,7 @@ const AdminDashboard = () => {
                               : "bg-secondary text-muted-foreground border border-border"
                           }`}>
                             {bus.status === "active" && <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />}
-                            {bus.status === "active" ? "On Route" : "At Stop"}
+                            {bus.status === "active" ? "On Route" : bus.status === "offline" ? "Offline" : "At Stop"}
                           </span>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell">
@@ -172,9 +174,15 @@ const AdminDashboard = () => {
                       <h2 className="text-lg font-semibold">Bus {selectedBus.name}</h2>
                       <p className="text-xs text-muted-foreground">{selectedBus.route}</p>
                     </div>
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-status-live/10 border border-status-live/30 text-[11px] font-medium text-status-live">
-                      <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />
-                      {getBusStatus(selectedBus) === "active" ? "On Route" : "At Stop"}
+                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                      getBusStatus(selectedBus) === "active"
+                        ? "bg-status-live/10 border border-status-live/30 text-status-live"
+                        : "bg-secondary border border-border text-muted-foreground"
+                    }`}>
+                      {getBusStatus(selectedBus) === "active" && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />
+                      )}
+                      {getBusStatus(selectedBus) === "active" ? "On Route" : getBusStatus(selectedBus) === "offline" ? "Offline" : "At Stop"}
                     </span>
                   </div>
 

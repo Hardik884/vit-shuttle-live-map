@@ -34,6 +34,7 @@ interface Bus {
   speed: number;
   driver: string;
   eta: number;
+  isOffline: boolean;
 }
 
 const createStopIcon = () =>

@@ -23,12 +23,14 @@ const ActiveBusList = ({ buses, selectedBusId, onSelectBus }: ActiveBusListProps
               className={`flex flex-col items-center py-2.5 sm:py-3 px-2 rounded-lg border transition-all text-center ${
                 isSelected
                   ? "border-foreground bg-primary text-primary-foreground"
+                  : bus.isOffline
+                  ? "border-border bg-secondary/50 opacity-60"
                   : "border-border bg-secondary hover:bg-accent"
               }`}
             >
               <span className="text-xs sm:text-sm font-semibold">{bus.name}</span>
               <span className={`text-[10px] sm:text-[11px] ${isSelected ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                {bus.eta} min
+                {bus.isOffline ? "Offline" : `${bus.eta} min`}
               </span>
             </button>
           );

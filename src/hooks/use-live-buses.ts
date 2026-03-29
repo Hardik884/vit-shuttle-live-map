@@ -73,6 +73,7 @@ const fetchETA = async (lat: number, lon: number): Promise<EtaResponse | null> =
 const mapGpsToBus = (apiBus: ApiBus, index: number, etaData: EtaResponse | null): Bus => {
   const fallback = FALLBACK_BUS_DETAILS[index % FALLBACK_BUS_DETAILS.length];
   const isNoData = apiBus.status?.toUpperCase() === "NO_DATA";
+  const isOffline = apiBus.status?.toLowerCase() === "offline" || isNoData;
   const apiSpeed = Number.isFinite(apiBus.speed) ? Number(apiBus.speed) : null;
   const etaFromApi = Number.isFinite(etaData?.eta_minutes) ? Number(etaData?.eta_minutes) : null;
 
@@ -86,6 +87,7 @@ const mapGpsToBus = (apiBus: ApiBus, index: number, etaData: EtaResponse | null)
     speed: isNoData ? 0 : apiSpeed ?? fallback.speed,
     driver: fallback.driver,
     eta: isNoData ? 0 : etaFromApi ?? fallback.eta,
+    isOffline,
   };
 };
 
