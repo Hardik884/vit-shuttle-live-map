@@ -25,6 +25,7 @@ const getDistanceKm = (from: [number, number], to: [number, number]) => {
 
 const Index = () => {
   const { buses, busIds } = useLiveBuses();
+  const onlineBusCount = buses.filter((bus) => bus.connectionStatus === "online").length;
   const [selectedBusId, setSelectedBusId] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
@@ -75,7 +76,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader liveBusCount={buses.length} />
+      <DashboardHeader liveBusCount={onlineBusCount} />
       
       <main className="w-full px-3 sm:px-6 lg:px-10 py-3 sm:py-4 space-y-3 sm:space-y-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">

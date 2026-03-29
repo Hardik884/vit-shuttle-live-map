@@ -34,6 +34,7 @@ interface Bus {
   speed: number;
   driver: string;
   eta: number;
+  connectionStatus: "online" | "offline";
 }
 
 const createStopIcon = () =>
@@ -44,10 +45,10 @@ const createStopIcon = () =>
     iconAnchor: [6, 6],
   });
 
-const createBusIcon = (name: string, isSelected = false) =>
+const createBusIcon = (name: string, isOnline: boolean, isSelected = false) =>
   L.divIcon({
     className: "",
-    html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${isSelected ? "hsl(142,70%,30%)" : "hsl(0,0%,7%)"};color:white;font-size:10px;font-weight:600;font-family:'Space Grotesk',sans-serif;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"><span>${name}</span></div>`,
+    html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${isOnline ? (isSelected ? "hsl(142,70%,30%)" : "hsl(0,0%,7%)") : "hsl(0,0%,45%)"};color:white;font-size:10px;font-weight:600;font-family:'Space Grotesk',sans-serif;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"><span>${name}</span></div>`,
     iconSize: [28, 28],
     iconAnchor: [14, 14],
   });
@@ -67,12 +68,13 @@ function AnimateBuses({ buses, onSelectBus, selectedBusId }: { buses: Bus[]; onS
         <Marker
           key={bus.id}
           position={bus.position}
-          icon={createBusIcon(bus.name, bus.id === selectedBusId)}
+          icon={createBusIcon(bus.name, bus.connectionStatus === "online", bus.id === selectedBusId)}
           eventHandlers={{ click: () => onSelectBus(bus) }}
         >
           <Popup className="leaflet-popup-custom">
             <div className="font-sans text-xs">
               <strong>{bus.name}</strong> · {bus.route}
+              <div className="mt-1">Status: {bus.connectionStatus === "online" ? "Online" : "Offline"}</div>
             </div>
           </Popup>
         </Marker>

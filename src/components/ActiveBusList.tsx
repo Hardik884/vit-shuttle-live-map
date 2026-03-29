@@ -7,15 +7,18 @@ interface ActiveBusListProps {
 }
 
 const ActiveBusList = ({ buses, selectedBusId, onSelectBus }: ActiveBusListProps) => {
+  const onlineCount = buses.filter((bus) => bus.connectionStatus === "online").length;
+
   return (
     <div className="bg-card rounded-xl border border-border p-3 sm:p-4">
       <div className="flex items-baseline gap-2 mb-3">
         <h3 className="text-sm font-semibold">Active Buses</h3>
-        <span className="text-xs text-muted-foreground">({buses.length} on route)</span>
+        <span className="text-xs text-muted-foreground">({onlineCount} online)</span>
       </div>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
         {buses.map((bus) => {
           const isSelected = bus.id === selectedBusId;
+          const isOffline = bus.connectionStatus === "offline";
           return (
             <button
               key={bus.id}
@@ -23,12 +26,14 @@ const ActiveBusList = ({ buses, selectedBusId, onSelectBus }: ActiveBusListProps
               className={`flex flex-col items-center py-2.5 sm:py-3 px-2 rounded-lg border transition-all text-center ${
                 isSelected
                   ? "border-foreground bg-primary text-primary-foreground"
+                  : isOffline
+                  ? "border-border bg-secondary/50 opacity-60"
                   : "border-border bg-secondary hover:bg-accent"
               }`}
             >
               <span className="text-xs sm:text-sm font-semibold">{bus.name}</span>
               <span className={`text-[10px] sm:text-[11px] ${isSelected ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                {bus.eta} min
+                {isOffline ? "Offline" : "Online"}
               </span>
             </button>
           );

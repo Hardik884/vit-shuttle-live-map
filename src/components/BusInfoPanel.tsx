@@ -23,6 +23,7 @@ const BusInfoPanel = ({ bus, timeToNearestStopMinutes, hasUserLocation }: BusInf
     occupancyPercent > 85 ? "bg-status-danger" : occupancyPercent > 60 ? "bg-status-warning" : "bg-status-live";
   const occupancyLabel =
     occupancyPercent > 85 ? "Crowded" : occupancyPercent > 60 ? "Moderate" : "Available";
+  const isOffline = bus.connectionStatus === "offline";
 
   return (
     <div className="space-y-3 animate-slide-up">
@@ -33,10 +34,17 @@ const BusInfoPanel = ({ bus, timeToNearestStopMinutes, hasUserLocation }: BusInf
             <h2 className="text-lg font-semibold">Bus {bus.name}</h2>
             <p className="text-xs text-muted-foreground">{bus.route}</p>
           </div>
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-status-live/10 border border-status-live/30 text-[11px] font-medium text-status-live">
-            <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />
-            On Route
-          </span>
+          {isOffline ? (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary border border-border text-[11px] font-medium text-muted-foreground">
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
+              Offline
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-status-live/10 border border-status-live/30 text-[11px] font-medium text-status-live">
+              <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />
+              On Route
+            </span>
+          )}
         </div>
 
         {/* Time for Bus to Reach Next Stop */}

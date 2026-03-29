@@ -4,15 +4,8 @@ import DashboardHeader from "@/components/DashboardHeader";
 import type { Bus } from "@/components/ShuttleMap";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Bus as BusIcon, MapPin, Clock, Users, Eye } from "lucide-react";
+import { Bus as BusIcon, MapPin, Clock, WifiOff, Eye } from "lucide-react";
 import { useLiveBuses } from "@/hooks/use-live-buses";
-
-type BusStatus = "active" | "at-stop" | "maintenance";
-
-const getBusStatus = (bus: Bus): BusStatus => {
-  if (bus.speed === 0 && bus.eta === 0) return "at-stop";
-  return "active";
-};
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -26,24 +19,22 @@ const AdminDashboard = () => {
     }
   }, [navigate]);
 
-  const busesWithStatus = buses.map((b) => ({ ...b, status: getBusStatus(b) }));
-  const activeBuses = busesWithStatus.filter((b) => b.status === "active");
-  const atStopBuses = busesWithStatus.filter((b) => b.status === "at-stop");
+  const onlineBuses = buses.filter((b) => b.connectionStatus === "online");
+  const offlineBuses = buses.filter((b) => b.connectionStatus === "offline");
   const avgOccupancy = buses.length
     ? Math.round(buses.reduce((sum, b) => sum + (b.occupancy / b.capacity) * 100, 0) / buses.length)
     : 0;
 
   const filteredBuses =
-    filter === "all" ? busesWithStatus :
-    filter === "active" ? busesWithStatus.filter((b) => b.status === "active") :
-    filter === "at-stop" ? busesWithStatus.filter((b) => b.status === "at-stop") :
-    busesWithStatus.filter((b) => b.status === "maintenance");
+    filter === "all" ? buses :
+    filter === "online" ? onlineBuses :
+    offlineBuses;
 
   const stats = [
     { label: "Total Buses", value: buses.length, icon: BusIcon },
-    { label: "On Route", value: activeBuses.length, icon: MapPin },
-    { label: "At Stop", value: atStopBuses.length, icon: Clock },
-    { label: "Avg Occupancy", value: `${avgOccupancy}%`, icon: Users },
+    { label: "Online", value: onlineBuses.length, icon: MapPin },
+    { label: "Offline", value: offlineBuses.length, icon: WifiOff },
+    { label: "Avg Occupancy", value: `${avgOccupancy}%`, icon: Clock },
   ];
 
   useEffect(() => {
@@ -65,7 +56,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader liveBusCount={activeBuses.length} isAdmin />
+      <DashboardHeader liveBusCount={onlineBuses.length} isAdmin />
 
       <main className="w-full px-3 sm:px-6 lg:px-10 py-3 sm:py-4 space-y-3 sm:space-y-4">
         {/* Stats Row */}
@@ -91,9 +82,8 @@ const AdminDashboard = () => {
               <Tabs value={filter} onValueChange={setFilter}>
                 <TabsList className="h-8">
                   <TabsTrigger value="all" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">All</TabsTrigger>
-                  <TabsTrigger value="active" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">Active</TabsTrigger>
-                  <TabsTrigger value="at-stop" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">At Stop</TabsTrigger>
-                  <TabsTrigger value="maintenance" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">Maint.</TabsTrigger>
+                  <TabsTrigger value="online" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">Online</TabsTrigger>
+                  <TabsTrigger value="offline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-1">Offline</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -121,14 +111,19 @@ const AdminDashboard = () => {
                         <TableCell className="text-xs text-muted-foreground hidden sm:table-cell">{bus.route}</TableCell>
                         <TableCell className="text-xs hidden md:table-cell">{bus.driver}</TableCell>
                         <TableCell>
+                          {bus.connectionStatus === "online" ? (
                           <span className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium ${
-                            bus.status === "active"
-                              ? "bg-status-live/10 text-status-live border border-status-live/30"
-                              : "bg-secondary text-muted-foreground border border-border"
+                            "bg-status-live/10 text-status-live border border-status-live/30"
                           }`}>
-                            {bus.status === "active" && <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />}
-                            {bus.status === "active" ? "On Route" : "At Stop"}
+                            <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />
+                            Online
                           </span>
+                          ) : (
+                          <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium bg-secondary text-muted-foreground border border-border">
+                            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
+                            Offline
+                          </span>
+                          )}
                         </TableCell>
                         <TableCell className="hidden sm:table-cell">
                           <div className="flex items-center gap-2">
@@ -172,9 +167,15 @@ const AdminDashboard = () => {
                       <h2 className="text-lg font-semibold">Bus {selectedBus.name}</h2>
                       <p className="text-xs text-muted-foreground">{selectedBus.route}</p>
                     </div>
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-status-live/10 border border-status-live/30 text-[11px] font-medium text-status-live">
-                      <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />
-                      {getBusStatus(selectedBus) === "active" ? "On Route" : "At Stop"}
+                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                      selectedBus.connectionStatus === "online"
+                        ? "bg-status-live/10 border border-status-live/30 text-status-live"
+                        : "bg-secondary border border-border text-muted-foreground"
+                    }`}>
+                      {selectedBus.connectionStatus === "online" && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />
+                      )}
+                      {selectedBus.connectionStatus === "online" ? "Online" : "Offline"}
                     </span>
                   </div>
 

@@ -8,6 +8,8 @@ interface DashboardHeaderProps {
 }
 
 const DashboardHeader = ({ liveBusCount, isAdmin = false }: DashboardHeaderProps) => {
+  const hasLiveBuses = liveBusCount > 0;
+
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
       return document.documentElement.classList.contains("dark") ||
@@ -50,9 +52,21 @@ const DashboardHeader = ({ liveBusCount, isAdmin = false }: DashboardHeaderProps
           >
             {isDark ? <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
-          <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-status-live/15 border border-status-live/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-status-live animate-pulse-dot" />
-            <span className="text-[10px] sm:text-xs font-medium text-status-live">{liveBusCount} live</span>
+          <div
+            className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border ${
+              hasLiveBuses
+                ? "bg-status-live/15 border-status-live/30"
+                : "bg-secondary border-border"
+            }`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                hasLiveBuses ? "bg-status-live animate-pulse-dot" : "bg-muted-foreground"
+              }`}
+            />
+            <span className={`text-[10px] sm:text-xs font-medium ${hasLiveBuses ? "text-status-live" : "text-muted-foreground"}`}>
+              {hasLiveBuses ? `${liveBusCount} live` : "Offline"}
+            </span>
           </div>
           {isAdmin ? (
             <Link

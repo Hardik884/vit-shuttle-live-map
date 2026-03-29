@@ -49,6 +49,14 @@ const formatBusName = (busId: string) => {
   return compact || busId;
 };
 
+const normalizeConnectionStatus = (status?: string): "online" | "offline" => {
+  const normalized = status?.trim().toLowerCase();
+  if (normalized === "offline" || normalized === "no_data" || normalized === "no data") {
+    return "offline";
+  }
+  return "online";
+};
+
 // Call this whenever fresh GPS coordinates are received from the live buses API.
 const fetchETA = async (lat: number, lon: number): Promise<EtaResponse | null> => {
   try {
@@ -72,7 +80,8 @@ const fetchETA = async (lat: number, lon: number): Promise<EtaResponse | null> =
 
 const mapGpsToBus = (apiBus: ApiBus, index: number, etaData: EtaResponse | null): Bus => {
   const fallback = FALLBACK_BUS_DETAILS[index % FALLBACK_BUS_DETAILS.length];
-  const isNoData = apiBus.status?.toUpperCase() === "NO_DATA";
+  const connectionStatus = normalizeConnectionStatus(apiBus.status);
+  const isOffline = connectionStatus === "offline";
   const apiSpeed = Number.isFinite(apiBus.speed) ? Number(apiBus.speed) : null;
   const etaFromApi = Number.isFinite(etaData?.eta_minutes) ? Number(etaData?.eta_minutes) : null;
 
@@ -83,9 +92,10 @@ const mapGpsToBus = (apiBus: ApiBus, index: number, etaData: EtaResponse | null)
     position: [apiBus.lat, apiBus.lon],
     occupancy: fallback.occupancy,
     capacity: fallback.capacity,
-    speed: isNoData ? 0 : apiSpeed ?? fallback.speed,
+    speed: isOffline ? 0 : apiSpeed ?? fallback.speed,
     driver: fallback.driver,
-    eta: isNoData ? 0 : etaFromApi ?? fallback.eta,
+    eta: isOffline ? 0 : etaFromApi ?? fallback.eta,
+    connectionStatus,
   };
 };
 
