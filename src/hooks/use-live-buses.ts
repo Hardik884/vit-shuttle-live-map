@@ -36,8 +36,8 @@ interface FallbackBusDetails {
 }
 
 const FALLBACK_BUS_DETAILS: FallbackBusDetails[] = [
-  { route: "North Loop", occupancy: 43, capacity: 60, speed: 12, driver: "Rajesh Kumar", eta: 0 },
-  { route: "North Loop", occupancy: 27, capacity: 60, speed: 18, driver: "Suresh Babu", eta: 4 },
+  { route: "Academic Loop", occupancy: 43, capacity: 60, speed: 12, driver: "Rajesh Kumar", eta: 0 },
+  { route: "Academic Loop", occupancy: 27, capacity: 60, speed: 18, driver: "Suresh Babu", eta: 4 },
   { route: "East Ring", occupancy: 44, capacity: 60, speed: 0, driver: "Arun Prasad", eta: 0 },
   { route: "West Circuit", occupancy: 52, capacity: 60, speed: 8, driver: "Vijay Nair", eta: 2 },
   { route: "South Express", occupancy: 52, capacity: 60, speed: 15, driver: "Karthik Rajan", eta: 6 },

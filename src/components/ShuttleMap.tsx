@@ -62,9 +62,11 @@ const createUserIcon = () =>
   });
 
 function AnimateBuses({ buses, onSelectBus, selectedBusId }: { buses: Bus[]; onSelectBus: (bus: Bus) => void; selectedBusId: string | null }) {
+  const onlineBuses = buses.filter((bus) => bus.connectionStatus === "online");
+
   return (
     <>
-      {buses.map((bus) => (
+      {onlineBuses.map((bus) => (
         <Marker
           key={bus.id}
           position={bus.position}
@@ -74,7 +76,7 @@ function AnimateBuses({ buses, onSelectBus, selectedBusId }: { buses: Bus[]; onS
           <Popup className="leaflet-popup-custom">
             <div className="font-sans text-xs">
               <strong>{bus.name}</strong> · {bus.route}
-              <div className="mt-1">Status: {bus.connectionStatus === "online" ? "Online" : "Offline"}</div>
+              <div className="mt-1">Status: Online</div>
             </div>
           </Popup>
         </Marker>
