@@ -6,10 +6,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Bus as BusIcon, MapPin, Clock, WifiOff, Eye } from "lucide-react";
 import { useLiveBuses } from "@/hooks/use-live-buses";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { buses } = useLiveBuses();
+  const { buses, isInitialLoading } = useLiveBuses();
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
   const [filter, setFilter] = useState("all");
 
@@ -59,8 +60,32 @@ const AdminDashboard = () => {
       <DashboardHeader liveBusCount={onlineBuses.length} isAdmin />
 
       <main className="w-full px-3 sm:px-6 lg:px-10 py-3 sm:py-4 space-y-3 sm:space-y-4">
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        {isInitialLoading ? (
+          <>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="bg-card rounded-xl border border-border p-3 sm:p-4">
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+              <div className="lg:col-span-2 bg-card rounded-xl border border-border p-3 sm:p-4 space-y-3">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-64 w-full" />
+              </div>
+              <div className="lg:col-span-1 bg-card rounded-xl border border-border p-4 space-y-3 min-h-[400px]">
+                <Skeleton className="h-8 w-1/2" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-16 w-full" />
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Stats Row */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {stats.map((s) => (
             <div key={s.label} className="bg-card rounded-xl border border-border p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-secondary flex items-center justify-center shrink-0">
@@ -72,9 +97,9 @@ const AdminDashboard = () => {
               </div>
             </div>
           ))}
-        </div>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
           {/* Fleet Table */}
           <div className="lg:col-span-2 bg-card rounded-xl border border-border p-3 sm:p-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 sm:mb-4">
@@ -226,7 +251,9 @@ const AdminDashboard = () => {
               </div>
             )}
           </div>
-        </div>
+            </div>
+          </>
+        )}
       </main>
     </div>
   );

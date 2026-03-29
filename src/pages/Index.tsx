@@ -5,6 +5,7 @@ import BusInfoPanel from "@/components/BusInfoPanel";
 import ActiveBusList from "@/components/ActiveBusList";
 import type { Bus } from "@/components/ShuttleMap";
 import { useLiveBuses } from "@/hooks/use-live-buses";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const AVERAGE_WALKING_SPEED_KMPH = 5;
 
@@ -24,7 +25,7 @@ const getDistanceKm = (from: [number, number], to: [number, number]) => {
 };
 
 const Index = () => {
-  const { buses, busIds } = useLiveBuses();
+  const { buses, busIds, isInitialLoading } = useLiveBuses();
   const onlineBusCount = buses.filter((bus) => bus.connectionStatus === "online").length;
   const [selectedBusId, setSelectedBusId] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
@@ -79,29 +80,58 @@ const Index = () => {
       <DashboardHeader liveBusCount={onlineBusCount} />
       
       <main className="w-full px-3 sm:px-6 lg:px-10 py-3 sm:py-4 space-y-3 sm:space-y-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
-          {/* Map */}
-          <div className="lg:col-span-2 h-[45vh] sm:h-[55vh] lg:h-[75vh]">
-            <ShuttleMap
+        {isInitialLoading ? (
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+              <div className="lg:col-span-2 h-[45vh] sm:h-[55vh] lg:h-[75vh] bg-card rounded-xl border border-border p-4">
+                <Skeleton className="h-full w-full rounded-lg" />
+              </div>
+              <div className="lg:col-span-1 max-h-[50vh] lg:max-h-[75vh] bg-card rounded-xl border border-border p-4 space-y-3">
+                <Skeleton className="h-8 w-1/2" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-16 w-full" />
+              </div>
+            </div>
+            <div className="bg-card rounded-xl border border-border p-3 sm:p-4">
+              <div className="flex items-center justify-between mb-3">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-14 sm:h-16 w-full rounded-lg" />
+                ))}
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+              {/* Map */}
+              <div className="lg:col-span-2 h-[45vh] sm:h-[55vh] lg:h-[75vh]">
+                <ShuttleMap
+                  buses={buses}
+                  onSelectBus={handleSelectBus}
+                  selectedBusId={safeSelectedBusId}
+                  userLocation={userLocation}
+                />
+              </div>
+
+              {/* Info Panel */}
+              <div className="lg:col-span-1 overflow-y-auto max-h-[50vh] lg:max-h-[75vh]">
+                <BusInfoPanel bus={selectedBus} timeToNearestStopMinutes={timeToNearestStopMinutes} hasUserLocation={Boolean(userLocation)} />
+              </div>
+            </div>
+
+            {/* Active Buses */}
+            <ActiveBusList
               buses={buses}
-              onSelectBus={handleSelectBus}
               selectedBusId={safeSelectedBusId}
-              userLocation={userLocation}
+              onSelectBus={handleSelectBus}
             />
-          </div>
-
-          {/* Info Panel */}
-          <div className="lg:col-span-1 overflow-y-auto max-h-[50vh] lg:max-h-[75vh]">
-            <BusInfoPanel bus={selectedBus} timeToNearestStopMinutes={timeToNearestStopMinutes} hasUserLocation={Boolean(userLocation)} />
-          </div>
-        </div>
-
-        {/* Active Buses */}
-        <ActiveBusList
-          buses={buses}
-          selectedBusId={safeSelectedBusId}
-          onSelectBus={handleSelectBus}
-        />
+          </>
+        )}
       </main>
     </div>
   );

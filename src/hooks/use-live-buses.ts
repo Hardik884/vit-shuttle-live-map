@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Bus } from "@/components/ShuttleMap";
 
 const BUSES_API_URL = "https://embedded-vit-gps-tracking.onrender.com/buses";
 const ETA_API_URL = "https://13.206.65.251.nip.io/predict";
 const DEFAULT_POLL_INTERVAL_MS = 10000;
+const BUSES_FETCH_TIMEOUT_MS = 4500;
+const ETA_FETCH_TIMEOUT_MS = 1800;
 
 interface ApiBus {
   bus_id: string;
@@ -57,14 +59,32 @@ const normalizeConnectionStatus = (status?: string): "online" | "offline" => {
   return "online";
 };
 
+const fetchWithTimeout = async (input: RequestInfo | URL, init: RequestInit, timeoutMs: number) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
 // Call this whenever fresh GPS coordinates are received from the live buses API.
 const fetchETA = async (lat: number, lon: number): Promise<EtaResponse | null> => {
   try {
-    const res = await fetch(ETA_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ lat, lon }),
-    });
+    const res = await fetchWithTimeout(
+      ETA_API_URL,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lat, lon }),
+      },
+      ETA_FETCH_TIMEOUT_MS
+    );
 
     if (!res.ok) {
       return null;
@@ -107,13 +127,17 @@ export function useLiveBuses(options: UseLiveBusesOptions = {}) {
   const { pollIntervalMs = DEFAULT_POLL_INTERVAL_MS } = options;
   const [buses, setBuses] = useState<Bus[]>([]);
   const [isUsingLiveData, setIsUsingLiveData] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const latestRequestIdRef = useRef(0);
 
   useEffect(() => {
     let isMounted = true;
 
     const fetchBuses = async () => {
+      const requestId = ++latestRequestIdRef.current;
+
       try {
-        const response = await fetch(BUSES_API_URL);
+        const response = await fetchWithTimeout(BUSES_API_URL, {}, BUSES_FETCH_TIMEOUT_MS);
         if (!response.ok) {
           return;
         }
@@ -124,22 +148,48 @@ export function useLiveBuses(options: UseLiveBusesOptions = {}) {
         }
 
         const validBuses = data.buses.filter((bus) => isValidCoordinate(bus.lat, bus.lon));
+        const quickMappedBuses = validBuses.map((bus, index) => mapGpsToBus(bus, index, null));
 
-        const mappedBuses = await Promise.all(
-          validBuses.map(async (bus, index) => {
-            const etaData = await fetchETA(bus.lat, bus.lon);
-            return mapGpsToBus(bus, index, etaData);
-          })
-        );
-
-        if (!mappedBuses.length || !isMounted) {
+        if (!quickMappedBuses.length || !isMounted || requestId !== latestRequestIdRef.current) {
           return;
         }
 
-        setBuses(mappedBuses);
+        // Render quickly with GPS data first, then enrich ETAs in the background.
+        setBuses(quickMappedBuses);
         setIsUsingLiveData(true);
+
+        const busesWithEta = await Promise.all(
+          validBuses.map(async (bus, index) => {
+            const baseBus = quickMappedBuses[index];
+            if (!baseBus || baseBus.connectionStatus === "offline") {
+              return baseBus;
+            }
+
+            const etaData = await fetchETA(bus.lat, bus.lon);
+            const etaMinutes = Number.isFinite(etaData?.eta_minutes) ? Number(etaData?.eta_minutes) : null;
+
+            if (etaMinutes === null) {
+              return baseBus;
+            }
+
+            return {
+              ...baseBus,
+              eta: etaMinutes,
+            };
+          })
+        );
+
+        if (!isMounted || requestId !== latestRequestIdRef.current) {
+          return;
+        }
+
+        setBuses(busesWithEta.filter(Boolean) as Bus[]);
       } catch {
         // Keep current data when API is temporarily unavailable.
+      } finally {
+        if (isMounted) {
+          setIsInitialLoading(false);
+        }
       }
     };
 
@@ -158,5 +208,6 @@ export function useLiveBuses(options: UseLiveBusesOptions = {}) {
     buses,
     busIds,
     isUsingLiveData,
+    isInitialLoading,
   };
 }
